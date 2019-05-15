@@ -1,5 +1,19 @@
+let globalSpeed = 500;
+const musicBoxContainer = document.getElementById("flex-container-music-box");
+const musicColumnHTML = '<div class="flex-container-note-column"><item class="flex-item-note"><div class="note">A5</div></item><item class="flex-item-note"><div class="note">B5</div></item><item class="flex-item-note"><div class="note">C5</div></item><item class="flex-item-note"><div class="note">D5</div></item><item class="flex-item-note"><div class="note">E5</div></item><item class="flex-item-note"><div class="note">F5</div></item><item class="flex-item-note"><div class="note">G5</div></item></div>';
+
 const noteNames = new Array('A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5');
 const noteAudioFiles = new Array(A5, B5, C5, D5, E5, F5, G5);
+const numberOfNotes = noteAudioFiles.length;
+const activeNoteFlags = [];
+
+let numberOfColumns = 0;
+const noteColumns = document.getElementsByClassName("flex-container-note-column");
+
+let isPlaying = false;
+let stopFlag = false;
+const playControlsButton = document.getElementById("play-controls");
+const clearButton = document.getElementById("clear");
 
 function PlayNote(note) {
     note.play();
@@ -11,46 +25,110 @@ function PlayChord(notes) {
     }
 }
 
-let globalSpeed = 500;
-function PlaySong(song, currentIndex = -999) {
-    if (currentIndex == -999) {
-        currentIndex = 0;
+function AssignNotesToAllCollumns() {
+    for (let i = 0; i < noteColumns.length; i++) {
+        AssignNotesToColumn(i);
     }
-    else if (currentIndex >= song.length) {
+}
+
+function AssignNotesToColumn(columnIndex) {
+    for (let i = 0; i < noteColumns[columnIndex].childElementCount; i++) {
+        GetNoteButton(columnIndex, i).onclick = () => OnNoteButtonPress(columnIndex, i);
+    }
+}
+
+function GetNoteButton(columnIndex, rowIndex) {
+    return noteColumns[columnIndex].children[rowIndex].children[0];
+}
+
+function OnNoteButtonPress(columnIndex, rowIndex) {
+    const currentVal = activeNoteFlags[columnIndex][rowIndex];
+
+    if (!currentVal) {
+        PlayNote(noteAudioFiles[rowIndex]);
+    }
+
+    AlterNoteState(columnIndex, rowIndex, !currentVal);
+}
+
+function AlterNoteState(columnIndex, rowIndex, value) {
+    activeNoteFlags[columnIndex][rowIndex] = value;
+    const colour = (value) ? "coral" : "tomato";
+
+    GetNoteButton(columnIndex, rowIndex).style.background = colour;
+}
+
+function CreateMusicBox(columnCount) {
+    numberOfColumns = columnCount;
+
+    for (let i = 0; i < columnCount; i++) {
+        musicBoxContainer.innerHTML += musicColumnHTML;
+        activeNoteFlags.push([]);
+        for (let j = 0; j < numberOfNotes; j++) {
+            activeNoteFlags[i].push(false);
+        }
+    }
+
+    AssignNotesToAllCollumns();
+}
+
+function ClearMusicBox() {
+    for (let i = 0; i < numberOfColumns; i++) {
+        for (let j = 0; j < numberOfNotes; j++) {
+            AlterNoteState(i, j, false);
+        }
+    }
+}
+
+function StopMusicBox() {
+    stopFlag = true;
+}
+
+function PlayMusicBox(currentColumn = -999) {
+    if (stopFlag) {
+        stopFlag = false;
+        return;
+    }
+    else if (currentColumn == -999) {
+        currentColumn = 0;
+    }
+    else if (currentColumn >= numberOfColumns) {
         return;
     }
 
-    console.log(currentIndex);
+    console.log(currentColumn + "/" + numberOfColumns);
 
-    let currentChord = song[currentIndex];
+    for (let i = 0; i < numberOfNotes; i++) {
+        if (!activeNoteFlags[currentColumn][i]) {
+            continue;
+        }
 
-    if (currentChord.length > 0) {
-        PlayChord(currentChord);
+        PlayNote(noteAudioFiles[i]);
     }
 
-    currentIndex++;
+    currentColumn++;
 
     setTimeout(function () {
-        PlaySong(song, currentIndex);
+        PlayMusicBox(currentColumn);
     }, globalSpeed);
 }
 
-const twinkleStart = [
-    [C5],
-    [C5],
-    [G5],
-    [G5],
-    [A5],
-    [A5],
-    [G5],
-    [],
-    [F5],
-    [F5],
-    [E5],
-    [E5],
-    [D5],
-    [D5],
-    [C5]
-]
+playControlsButton.onclick = function () {
+    if (playControlsButton.innerHTML == "PLAY") {
+        stopFlag = false;
+        isPlaying = true;
+        PlayMusicBox();
+        playControlsButton.innerHTML = "STOP"
+        return;
+    }
 
-PlaySong(twinkleStart);
+    isPlaying = false;
+    stopFlag = true;
+    playControlsButton.innerHTML = "PLAY"
+}
+
+clearButton.onclick = function () {
+    ClearMusicBox();
+}
+
+CreateMusicBox(20);
