@@ -1,6 +1,6 @@
 let globalSpeed = 500;
 const musicBoxContainer = document.getElementById("flex-container-music-box");
-const musicColumnHTML = '<div class="flex-container-note-column"><item class="flex-item-note"><div class="note">A5</div></item><item class="flex-item-note"><div class="note">B5</div></item><item class="flex-item-note"><div class="note">C5</div></item><item class="flex-item-note"><div class="note">D5</div></item><item class="flex-item-note"><div class="note">E5</div></item><item class="flex-item-note"><div class="note">F5</div></item><item class="flex-item-note"><div class="note">G5</div></item></div>';
+const musicColumnHTML = '<div class="flex-container-note-column"><div class="note">C</div><div class="note">D</div><div class="note">E</div></div>';
 
 const noteNames = new Array('A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5');
 const noteAudioFiles = new Array(A5, B5, C5, D5, E5, F5, G5);
@@ -25,6 +25,15 @@ function PlayChord(notes) {
     }
 }
 
+function GetColumnNoteHTML(noteNames) {
+    let columnNoteHTML = `<div class="flex-container-note-column">`;
+    for (let i = 0; i < noteNames.length; i++) {
+        columnNoteHTML += `<div class="note">${noteNames[i]}</div>`;
+    }
+    columnNoteHTML += `</div>`;
+    return columnNoteHTML;
+}
+
 function AssignNotesToAllCollumns() {
     for (let i = 0; i < noteColumns.length; i++) {
         AssignNotesToColumn(i);
@@ -38,7 +47,7 @@ function AssignNotesToColumn(columnIndex) {
 }
 
 function GetNoteButton(columnIndex, rowIndex) {
-    return noteColumns[columnIndex].children[rowIndex].children[0];
+    return noteColumns[columnIndex].children[rowIndex];
 }
 
 function OnNoteButtonPress(columnIndex, rowIndex) {
@@ -62,7 +71,7 @@ function CreateMusicBox(columnCount) {
     numberOfColumns = columnCount;
 
     for (let i = 0; i < columnCount; i++) {
-        musicBoxContainer.innerHTML += musicColumnHTML;
+        musicBoxContainer.innerHTML += GetColumnNoteHTML(noteNames);
         activeNoteFlags.push([]);
         for (let j = 0; j < numberOfNotes; j++) {
             activeNoteFlags[i].push(false);
