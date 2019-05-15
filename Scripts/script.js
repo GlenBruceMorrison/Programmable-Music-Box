@@ -62,7 +62,9 @@ function OnNoteButtonPress(columnIndex, rowIndex) {
 
 function AlterNoteState(columnIndex, rowIndex, value) {
     activeNoteFlags[columnIndex][rowIndex] = value;
-    const colour = (value) ? "coral" : "tomato";
+
+    // onColor : offColor
+    const colour = (value) ? "#efca08" : "#1a1423";
 
     GetNoteButton(columnIndex, rowIndex).style.background = colour;
 }
