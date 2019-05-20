@@ -1,7 +1,11 @@
+body {
+    overflow-x:hidden;
+}
+
 .container{
     display: grid;
     grid-template-columns: 40px auto;
-    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px;
+    grid-template-rows: 20px 50px 50px 50px 50px 50px 50px 50px 50px;
 }
 
 #flex-container-music-box{
@@ -12,6 +16,8 @@
 
     grid-row-start: 1;
     grid-row-end: span 10;
+    border-radius: 5px;
+    border: 5px solid #0D1110;
 }
 
 .flex-container-note-column{
@@ -21,17 +27,30 @@
     height: 100%;
 }
 
+.playhead{
+    background: #042A2B;
+    border-bottom: 1px solid #0D1110;
+    height: 60px;
+}
+
 .note{
     display: flex;
-    background: #1a1423;
 
-    border-style: solid;
-    border-width: 0.5px;
+    background: #042A2B;
 
+    /* miss bottom border so they don't double up */
+    border-bottom: 0.5px solid #0D1110;
+    border-right:  0.5px solid #0D1110;
+    border-left:  0.5px solid #0D1110; 
+
+    /* note names */
     font-weight: bold;
     font-size: 1em;
-    text-align: center;
+    color: #0D1110;
 
-    width: 150px;
+    width: 50px;
     height: 100%;
+
+    /* dont allow user to highlight note names while dragging */
+    user-select: none;
 }
