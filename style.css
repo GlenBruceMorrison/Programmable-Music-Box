@@ -33,6 +33,11 @@ body {
     height: 60px;
 }
 
+.note:hover{
+    box-shadow: inset 0em 0em .5em #0D1110;
+    /* offset-x | offset-y | blur-radius | color */
+}
+
 .note{
     display: flex;
 
