@@ -47,9 +47,13 @@ window.addEventListener('mouseup', () => {
 standardBox.container.addEventListener('mousemove', (e) => {
     if (!mousedown) return;
 
-    draggingMusicWindow = true;
-
     const diff = (e.pageX - startX);
+
+    // only enabled when mouse x-axis coordinate has changed
+    if (diff > 0) {
+        draggingMusicWindow = true;
+    }
+
     slider.scrollLeft = scrollLeftOnDown - diff;
 });
 
