@@ -17,6 +17,7 @@ const globalSettings = {
 // music box dragging
 const slider = globalSettings.activeMusicBox.container;
 let mousedown = false;
+let draggingMusicWindow = false;
 let startX = 0;
 let scrollLeftOnDown;
 
@@ -35,6 +36,8 @@ window.addEventListener('mousedown', (e) => {
     startX = e.pageX;
     mousedown = true
     scrollLeftOnDown = slider.scrollLeft;
+
+    draggingMusicWindow = false;
 });
 
 window.addEventListener('mouseup', () => {
@@ -44,6 +47,9 @@ window.addEventListener('mouseup', () => {
 standardBox.container.addEventListener('mousemove', (e) => {
     if (!mousedown) return;
 
+    draggingMusicWindow = true;
+
     const diff = (e.pageX - startX);
     slider.scrollLeft = scrollLeftOnDown - diff;
 });
+

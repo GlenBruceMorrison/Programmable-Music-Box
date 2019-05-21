@@ -19,9 +19,9 @@ class MusicBox {
 
     create() {
         for (let i = 0; i < this.width; i++) {
-            if(i == 0){
+            if (i == 0) {
                 this.container.innerHTML += getHtmlColumn(this.scale, true);
-                continue;    
+                continue;
             }
             this.container.innerHTML += getHtmlColumn(this.scale);
         }
@@ -53,6 +53,8 @@ class MusicBox {
                 const currentNote = this.getNoteDiv(i, j);
 
                 currentNote.onclick = () => {
+                    if (draggingMusicWindow) return;
+
                     const nextState = !this.activeNoteFlags[i][j];
 
                     if (nextState) {
@@ -156,8 +158,7 @@ function getHtmlColumn(scale, renderNoteNames = false) {
     let columnNoteHTML = `<div class="flex-container-note-column">`;
     columnNoteHTML += `<div class="playhead"></div>`
     for (let i = 0; i < scale.length; i++) {
-        if(renderNoteNames)
-        {
+        if (renderNoteNames) {
             columnNoteHTML += `<div class="note">${scale[i].noteName}</div>`;
             continue;
         }
