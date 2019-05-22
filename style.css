@@ -1,28 +1,36 @@
-:root {
-    --note-on-color: #54F2F2;
-    --note-off-color: #042A2B;
-}
-
 body {
     overflow-x:hidden;
 }
 
 .container{
     display: grid;
-    grid-template-columns: 40px auto;
-    grid-template-rows: 20px 50px 50px 50px 50px 50px 50px 50px 50px;
+    grid-template-columns: 10% 80% 10%;
+    grid-template-rows: 5vh 50vh 5vh;
 }
 
 #flex-container-music-box{
     display: flex;
     overflow-x: auto;
-
     grid-column-start: 2;
 
-    grid-row-start: 1;
-    grid-row-end: span 10;
+    grid-row-start: 2;
+    grid-row-end: 2;
     border-radius: 5px;
-    border: 5px solid #0D1110;
+    border: 1px solid #0D1110;
+    background-color: rgb(2, 25, 26);
+}
+
+#flex-container-controls{
+    display: flex;
+    flex-wrap: wrap;
+
+    grid-row-start: 3;
+    grid-column-start: 2;
+    justify-content: space-evenly;
+}
+
+#flex-container-controls button{
+    
 }
 
 .flex-container-note-column{
@@ -41,7 +49,7 @@ body {
 .note{
     display: flex;
 
-    background: var(--note-off-color);
+    background: #042A2B;
 
     /* miss bottom border so they don't double up */
     border-bottom: 0.5px solid #0D1110;
@@ -66,5 +74,6 @@ body {
 }
 
 .note-on{
+    height: 90%;
     background: white;
 }

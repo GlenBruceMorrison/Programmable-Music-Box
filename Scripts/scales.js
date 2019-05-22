@@ -1,3 +1,3 @@
 const scales = {
-    C5MajorScale: ['C5', 'D5', 'E5']
+    C5MajorScale: ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
 }
