@@ -7,7 +7,6 @@ const globalSettings = {
     draggingMusicWindow: false
 }
 
-
 class MusicBox {
     constructor(scale) {
         this.container = document.getElementById("flex-container-music-box");
@@ -302,13 +301,16 @@ class MusicBoxControls {
     }
 }
 
-const standardBox = new MusicBox(scales.C5MajorScale);
-standardBox.create(5);
 
-globalSettings.activeMusicBox = standardBox;
+window.addEventListener('load', () => {
+    const standardBox = new MusicBox(scales.C5MajorScale);
+    standardBox.create(5);
 
-const sliderControls = new SliderControls();
-sliderControls.bind(globalSettings.activeMusicBox);
+    globalSettings.activeMusicBox = standardBox;
 
-const musicBoxControls = new MusicBoxControls();
-musicBoxControls.bind(globalSettings.activeMusicBox);
+    const sliderControls = new SliderControls();
+    sliderControls.bind(globalSettings.activeMusicBox);
+
+    const musicBoxControls = new MusicBoxControls();
+    musicBoxControls.bind(globalSettings.activeMusicBox);
+});
