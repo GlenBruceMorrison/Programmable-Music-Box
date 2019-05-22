@@ -1,27 +1,34 @@
-const A5 = new Howl({
-    src: ['PianoNotes/A5.wav']
-});
+const notes = {
+    'C5': {
+        note: new Howl({ src: ['PianoNotes/C5.wav'] }),
+        name: 'C5'
+    },
+    'D5': {
+        note: new Howl({ src: ['PianoNotes/D5.wav'] }),
+        name: 'D5'
+    },
+    'E5': {
+        note: new Howl({ src: ['PianoNotes/E5.wav'] }),
+        name: 'E5'
+    },
+    'F5': {
+        note: new Howl({ src: ['PianoNotes/F5.wav'] }),
+        name: 'F5'
+    },
+    'G5': {
+        note: new Howl({ src: ['PianoNotes/G5.wav'] }),
+        name: 'G5'
+    },
+    'A5': {
+        note: new Howl({ src: ['PianoNotes/A5.wav'] }),
+        name: 'A5'
+    },
+    'B5': {
+        note: new Howl({ src: ['PianoNotes/B5.wav'] }),
+        name: 'B5'
+    }
+}
 
-const B5 = new Howl({
-    src: ['PianoNotes/B5.wav']
-});
-
-const C5 = new Howl({
-    src: ['PianoNotes/C5.wav']
-});
-
-const D5 = new Howl({
-    src: ['PianoNotes/D5.wav']
-});
-
-const E5 = new Howl({
-    src: ['PianoNotes/E5.wav']
-});
-
-const F5 = new Howl({
-    src: ['PianoNotes/F5.wav']
-});
-
-const G5 = new Howl({
-    src: ['PianoNotes/G5.wav']
-});
+function PlayNote(noteName) {
+    notes[noteName].note.play();
+}

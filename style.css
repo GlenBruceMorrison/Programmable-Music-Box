@@ -1,3 +1,8 @@
+:root {
+    --note-on-color: #54F2F2;
+    --note-off-color: #042A2B;
+}
+
 body {
     overflow-x:hidden;
 }
@@ -33,15 +38,10 @@ body {
     height: 60px;
 }
 
-.note:hover{
-    box-shadow: inset 0em 0em .5em #0D1110;
-    /* offset-x | offset-y | blur-radius | color */
-}
-
 .note{
     display: flex;
 
-    background: #042A2B;
+    background: var(--note-off-color);
 
     /* miss bottom border so they don't double up */
     border-bottom: 0.5px solid #0D1110;
@@ -58,4 +58,13 @@ body {
 
     /* dont allow user to highlight note names while dragging */
     user-select: none;
+}
+
+.note:hover{
+    box-shadow: inset 0em 0em .5em #0D1110;
+    cursor: pointer;
+}
+
+.note-on{
+    background: white;
 }
