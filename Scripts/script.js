@@ -265,8 +265,7 @@ class MusicBox {
         console.log(data);
 
         this.resize(data.width);
-
-        this.scale = data.scale;
+        this.changeScale(data.scale);
 
         this.activeNoteFlags = data.activeNoteFlags;
         this.drawActiveNoteIndicators();
@@ -376,7 +375,6 @@ window.addEventListener('load', () => {
     musicBoxControls.bind(globalSettings.activeMusicBox);
 
     globalSettings.activeMusicBox.changeScale(scales.tiny);
+    globalSettings.activeMusicBox.save("Song_One");
     globalSettings.activeMusicBox.changeScale(scales.large);
-
-    globalSettings.activeMusicBox.logState();
 });
