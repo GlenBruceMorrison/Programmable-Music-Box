@@ -8,29 +8,58 @@ body {
     grid-template-rows: 5vh 50vh 5vh;
 }
 
-#flex-container-music-box{
+#load-song-wrapper{
     display: flex;
-    overflow-x: auto;
-    grid-column-start: 2;
+    grid-column: 2;
+    grid-row: 2;
 
-    grid-row-start: 2;
-    grid-row-end: 2;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(8, 11, 29);
+
+    overflow-y:auto;
+
+    z-index: -1;
+}
+
+#flex-load-song{
+    display: flex;
+    flex-direction: column;
+
+    padding: 5%;
+    width: 100%;
+}
+
+.song-card:hover{
+    background-color: rgb(34, 34, 34);
+    color: rgb(141, 153, 153)
+}
+
+.song-card{
+    height: 50px;
+    margin: 10px;
+
+    transition: all 0.2s ease;
+
+    background-color: rgb(182, 182, 182);
+}
+
+#song-title{
+    font-size: 2em;
+    grid-column: 2;
+    justify-self: center;
+}
+
+#flex-container-music-box{
+    overflow-x: auto;
+
+    display: flex;
+    grid-column: 2;
+    grid-row: 2;
+
     border-radius: 5px;
     border: 1px solid #0D1110;
     background-color: rgb(2, 25, 26);
-}
-
-#flex-container-controls{
-    display: flex;
-    flex-wrap: wrap;
-
-    grid-row-start: 3;
-    grid-column-start: 2;
-    justify-content: space-evenly;
-}
-
-#flex-container-controls button{
-    
 }
 
 .flex-container-note-column{
@@ -71,9 +100,4 @@ body {
 .note:hover{
     box-shadow: inset 0em 0em .5em #0D1110;
     cursor: pointer;
-}
-
-.note-on{
-    height: 90%;
-    background: white;
 }

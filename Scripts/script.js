@@ -4,7 +4,11 @@ const globalSettings = {
     noteOffColour: "#042A2B",
     playHeadOnColor: "#54F2F2",
     playHeadOffColor: "#042A2B",
-    draggingMusicWindow: false
+    draggingMusicWindow: false,
+    defaultWidth: 5,
+    defaultScale: scales.C5MajorScale,
+    loadedSong: null,
+    savedSongs: []
 }
 
 class MusicBox {
@@ -65,7 +69,7 @@ class MusicBox {
         const newHeight = this.height + 1;
         for (let i = 0; i < this.width; i++) {
             const currentColumn = this.noteColumns[i];
-            const newNote = getHtmlNote();
+            const newNote = this.getHtmlNote();
             currentColumn.appendChild(newNote);
 
             const newNoteDiv = this.noteColumns[i].children[newHeight];
@@ -110,7 +114,7 @@ class MusicBox {
     }
 
     addNoteColumn() {
-        const newMusicColumn = getHtmlColumn(this.scale, true);
+        const newMusicColumn = this.getHtmlColumn(this.scale, true);
 
         this.container.appendChild(newMusicColumn);
 
@@ -217,7 +221,6 @@ class MusicBox {
     drawActiveNoteIndicators() {
         for (let i = 0; i < this.width; i++) {
             for (let j = 0; j < this.height; j++) {
-                console.log(i + " " + j);
                 const currentNote = this.noteGrid[i][j];
                 const state = this.activeNoteFlags[i][j];
 
@@ -247,52 +250,93 @@ class MusicBox {
         this.isPlaying = false;
     }
 
-    save(songName) {
+    save() {
         const saveData = {
             scale: this.scale,
             width: this.width,
             activeNoteFlags: this.activeNoteFlags
         }
 
-        localStorage.setItem(songName, JSON.stringify(saveData));
+        if (globalSettings.loadedSong.name == "New Song...") {
+            const newTitle = prompt("Enter a name for the song.");
+            const newSong = new Song(newTitle, this.scale, this.width, this.activeNoteFlags);
+            globalSettings.savedSongs.push(newSong);
+            AddNewSongCard(newSong);
+            return;
+        }
+
+        globalSettings.loadedSong.scale = saveData.scale;
+        globalSettings.loadedSong.width = saveData.width;
+        globalSettings.loadedSong.activeMusicBox = saveData.activeNoteFlags;
     }
 
-    load(songName) {
-        stop();
+    load(songData) {
+        this.stop();
 
-        const data = JSON.parse(localStorage.getItem(songName));
+        this.resize(songData.width);
+        this.changeScale(songData.scale);
 
-        console.log(data);
-
-        this.resize(data.width);
-        this.changeScale(data.scale);
-
-        this.activeNoteFlags = data.activeNoteFlags;
+        this.activeNoteFlags = songData.activeNoteFlags;
         this.drawActiveNoteIndicators();
     }
-}
 
-function getHtmlNote() {
-    const note = document.createElement('div');
-    note.setAttribute('class', 'note');
-    return note;
-}
+    getHtmlSavedIndex(songName) {
+        const saveList = document.getElementById("saved-songs");
+        const newSongElement = document.createElement('option');
 
-function getHtmlColumn(scale, renderNoteNames = false) {
-    const musicColumn = document.createElement('div');
-    musicColumn.setAttribute('class', 'flex-container-note-column');
+        newSongElement.setAttribute('value', songName);
+        newSongElement.innerHTML = songName;
 
-    const playhead = document.createElement('div');
-    playhead.setAttribute('class', 'playhead');
+        saveList.appendChild(newSongElement);
 
-    musicColumn.appendChild(playhead);
-
-    for (let i = 0; i < scale.length; i++) {
-        const note = getHtmlNote();
-        musicColumn.appendChild(note);
+        return newSongElement;
     }
 
-    return musicColumn;
+    getHtmlNote() {
+        const note = document.createElement('div');
+        note.setAttribute('class', 'note');
+        return note;
+    }
+
+    getHtmlColumn(scale, renderNoteNames = false) {
+        const musicColumn = document.createElement('div');
+        musicColumn.setAttribute('class', 'flex-container-note-column');
+
+        const playhead = document.createElement('div');
+        playhead.setAttribute('class', 'playhead');
+
+        musicColumn.appendChild(playhead);
+
+        for (let i = 0; i < scale.length; i++) {
+            const note = this.getHtmlNote();
+            musicColumn.appendChild(note);
+        }
+
+        return musicColumn;
+    }
+}
+
+class Song {
+    constructor(name, scale = globalSettings.defaultScale,
+        width = globalSettings.defaultWidth, activeNoteFlags = []) {
+        this.name = name;
+        this.scale = scale;
+        this.width = width;
+
+        const height = scale.length;
+        if (activeNoteFlags = []) {
+            this.activeNoteFlags = activeNoteFlags;
+            for (let i = 0; i < this.width; i++) {
+                activeNoteFlags.push([]);
+                for (let j = 0; j < height; j++) {
+                    activeNoteFlags[i].push(false);
+                }
+            }
+        }
+        else {
+            this.activeNoteFlags = activeNoteFlags;
+        }
+    }
 }
 
 class SliderControls {
@@ -339,7 +383,6 @@ class MusicBoxControls {
     }
 
     bind(musicBox) {
-
         this.playButton.onclick = () => {
             if (musicBox.isPlaying) {
                 musicBox.stop();
@@ -354,13 +397,67 @@ class MusicBoxControls {
         document.getElementById("add-button").onclick = () => musicBox.addNoteColumn();
         document.getElementById("remove-button").onclick = () => musicBox.removeNoteColumn();
 
-        document.getElementById("load-button").onclick = () => musicBox.load("Song_One");
+        document.getElementById("load-button").onclick = () => {
+            ToggleLoadWrapper();
+        }
 
-        document.getElementById("save-button").onclick = () => musicBox.save("Song_One");
+        document.getElementById("save-button").onclick = () => {
+            musicBox.save();
+        }
 
     }
 }
 
+function TESTING_FEATURES() {
+    NewSong("Song One");
+    NewSong("Song Two");
+    NewSong("Song Three");
+    LoadSongs();
+}
+
+function ToggleLoadWrapper() {
+    const loadWrapper = document.getElementById('load-song-wrapper');
+
+    if (loadWrapper.style.zIndex > 0) {
+        loadWrapper.style.zIndex = -1;
+    }
+    else {
+        loadWrapper.style.zIndex = 1;
+    }
+}
+
+function NewSong(name) {
+    const newSong = new Song(name);
+    globalSettings.savedSongs.push(newSong);
+}
+
+function LoadSongs() {
+    const numberOfSongs = globalSettings.savedSongs.length;
+    for (let i = 0; i < numberOfSongs; i++) {
+        const song = globalSettings.savedSongs[i];
+        AddNewSongCard(song);
+    }
+}
+
+function AddNewSongCard(song) {
+    const songCardFlex = document.getElementById('flex-load-song');
+    const newCard = document.createElement('div');
+
+    newCard.setAttribute('class', 'song-card');
+    newCard.innerHTML = song.name;
+
+    songCardFlex.appendChild(newCard);
+
+    newCard.onclick = () => {
+        globalSettings.savedSongs.forEach(element => {
+            if (element.name === newCard.innerHTML) {
+                globalSettings.loadedSong = element;
+                globalSettings.activeMusicBox.load(element);
+                ToggleLoadWrapper();
+            }
+        });
+    }
+}
 
 window.addEventListener('load', () => {
     const standardBox = new MusicBox(scales.medium);
@@ -374,7 +471,8 @@ window.addEventListener('load', () => {
     const musicBoxControls = new MusicBoxControls();
     musicBoxControls.bind(globalSettings.activeMusicBox);
 
-    globalSettings.activeMusicBox.changeScale(scales.tiny);
-    globalSettings.activeMusicBox.save("Song_One");
-    globalSettings.activeMusicBox.changeScale(scales.large);
+    const newSong = new Song("New Song...");
+    globalSettings.loadedSong = newSong;
+
+    TESTING_FEATURES();
 });
