@@ -32,14 +32,70 @@ class MusicBox {
         this.noteGrid.pop();
     }
 
+    logState() {
+        console.log(this.noteGrid);
+        console.log(this.playHeads);
+        console.log(this.activeNoteFlags);
+        console.log(this.noteColumns);
+    }
+
+    changeScale(scale) {
+        const newHeight = scale.length;
+        if (newHeight === this.height) {
+            return;
+        }
+
+        this.scale = scale;
+
+        const diff = Math.abs(this.height - newHeight);
+
+        if (newHeight > this.height) {
+            for (let i = 0; i < diff; i++) {
+                this.addRow();
+            }
+            return;
+        }
+
+        for (let i = 0; i < diff; i++) {
+            this.removeRow();
+        }
+    }
+
+    addRow() {
+        const newHeight = this.height + 1;
+        for (let i = 0; i < this.width; i++) {
+            const currentColumn = this.noteColumns[i];
+            const newNote = getHtmlNote();
+            currentColumn.appendChild(newNote);
+
+            const newNoteDiv = this.noteColumns[i].children[newHeight];
+            this.noteGrid[i].push(newNoteDiv);
+
+            this.activeNoteFlags[i].push(false);
+
+            this.assignButton(i, this.height);
+        }
+
+        this.height++;
+    }
+
+    removeRow() {
+        for (let i = 0; i < this.width; i++) {
+            this.noteColumns[i].lastChild.remove();
+
+            this.activeNoteFlags[i].pop();
+
+            this.noteGrid[i].pop();
+        }
+        this.height--;
+    }
+
     resize(width) {
         if (this.width == width) {
             return;
         }
 
         const diff = Math.abs(this.width - width);
-
-        console.log(diff);
 
         if (width > this.width) {
             for (let i = 0; i < diff; i++) {
@@ -55,6 +111,8 @@ class MusicBox {
 
     addNoteColumn() {
         const newMusicColumn = getHtmlColumn(this.scale, true);
+
+        this.container.appendChild(newMusicColumn);
 
         this.noteColumns.push(newMusicColumn);
         this.container.appendChild(newMusicColumn);
@@ -88,14 +146,18 @@ class MusicBox {
     }
 
     assignButton(column, row) {
+
         const currentNote = this.noteGrid[column][row];
 
         currentNote.onclick = () => {
+            console.log('Note pressed!');
+
             if (globalSettings.draggingMusicWindow) return;
 
             const nextState = !this.activeNoteFlags[column][row];
 
             if (nextState) {
+                console.log('Playing note ' + this.scale[row]);
                 PlayNote(this.scale[row]);
             }
 
@@ -211,10 +273,13 @@ class MusicBox {
     }
 }
 
+function getHtmlNote() {
+    const note = document.createElement('div');
+    note.setAttribute('class', 'note');
+    return note;
+}
+
 function getHtmlColumn(scale, renderNoteNames = false) {
-
-    const musicBox = document.getElementById('flex-container-music-box');
-
     const musicColumn = document.createElement('div');
     musicColumn.setAttribute('class', 'flex-container-note-column');
 
@@ -224,13 +289,9 @@ function getHtmlColumn(scale, renderNoteNames = false) {
     musicColumn.appendChild(playhead);
 
     for (let i = 0; i < scale.length; i++) {
-        const note = document.createElement('div');
-        note.setAttribute('class', 'note');
-
+        const note = getHtmlNote();
         musicColumn.appendChild(note);
     }
-
-    musicBox.appendChild(musicColumn);
 
     return musicColumn;
 }
@@ -303,7 +364,7 @@ class MusicBoxControls {
 
 
 window.addEventListener('load', () => {
-    const standardBox = new MusicBox(scales.C5MajorScale);
+    const standardBox = new MusicBox(scales.medium);
     standardBox.create(5);
 
     globalSettings.activeMusicBox = standardBox;
@@ -313,4 +374,9 @@ window.addEventListener('load', () => {
 
     const musicBoxControls = new MusicBoxControls();
     musicBoxControls.bind(globalSettings.activeMusicBox);
+
+    globalSettings.activeMusicBox.changeScale(scales.tiny);
+    globalSettings.activeMusicBox.changeScale(scales.large);
+
+    globalSettings.activeMusicBox.logState();
 });
