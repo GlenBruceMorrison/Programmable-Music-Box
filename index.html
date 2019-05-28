@@ -13,31 +13,41 @@
 </head>
 
 <body>
-    <h1>Programmable Music Box Sheet Music Maker</h1>
-
     <div class="container">
-        <div id='load-song-wrapper'>
-            <div id='flex-load-song'>
-            </div>
+        <div id="song-title">PROGRAMMABLE MUSIC BOX</div>
+        <div id="music-note-indicators">
         </div>
-        <div id="song-title">SONGSONG</div>
-        <div id="flex-container-music-box">
+        <div id="flex-container-music-box" class="scroller">
+        </div>
+        <div id="box-controls">
+            <fieldset>
+                <p>Box Controls:</p>
+                <button id="play-button">PLAY</button>
+                <button id="stop-button">STOP</button>
+                <button id="clear-button">CLEAR</button>
+            </fieldset>
+
+            <fieldset>
+                <p>Save/Load:</p>
+                <button id="save-button">SAVE</button>
+                <button id="load-button">LOAD</button>
+            </fieldset>
+
+            <fieldset>
+                <p>Customize:</p>
+                <button id="add-button">ADD COLUMN</button>
+                <button id="remove-button">REMOVE COLUMN</button>
+                <button id="set-speed-button">SET SPEED</button>
+                <button id="toggle-theme-button">THEME</button>
+            </fieldset>
         </div>
     </div>
 
-    <button id="play-button">PLAY</button>
-    <button id="stop-button">STOP</button>
-    <button id="clear-button">CLEAR</button>
-
-    <button id="save-button">SAVE</button>
-    <button id="load-button">LOAD</button>
-
-    <button id="add-button">ADD</button>
-    <button id="remove-button">REMOVE</button>
 
     <script src="Libraries/howler.js"></script>
     <script src="Scripts/notes.js"></script>
     <script src="Scripts/scales.js"></script>
+    <script src="Scripts/builtInSongs.js"></script>
     <script src="Scripts/script.js"></script>
 </body>
 

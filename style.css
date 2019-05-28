@@ -1,103 +1,196 @@
+:root {
+    --color-background: #fafafa;
+    --color-border: #212121;
+    --color-text-default: #212121;
+    --color-accent: #3E363F;
+    --color-text-accent: #b2dfdb;
+    --color-contrast: #FF715B;
+}
+
 body {
-    overflow-x:hidden;
+    overflow-x: hidden;
+    background-color: var(--color-background) ;
+    font-family: "Verdana", Times, serif;
+}
+
+/* Firefox */
+.container > .scroller {
+    scrollbar-color: var(--color-contrast) var(--color-accent);
+    scrollbar-width: thin;
+    right: 0px;
+}
+
+.container > ::-webkit-scrollbar {
+    height: 8px;
+}
+
+.container > ::-webkit-scrollbar-track {
+    background: var(--color-accent); 
+}
+
+.container > ::-webkit-scrollbar-thumb {
+    background: var(--color-contrast); 
+}
+
+button {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    outline: 0;
+    -webkit-appearance: none;
 }
 
 .container{
     display: grid;
     grid-template-columns: 10% 80% 10%;
-    grid-template-rows: 5vh 50vh 5vh;
+    grid-template-rows: 50px 50vh 30vh;
 }
 
-#load-song-wrapper{
-    display: flex;
-    grid-column: 2;
-    grid-row: 2;
-
-    width: 100%;
-    height: 100%;
-    background-color: rgb(8, 11, 29);
-
-    overflow-y:auto;
-
-    z-index: -1;
-}
-
-#flex-load-song{
-    display: flex;
-    flex-direction: column;
-
-    padding: 5%;
-    width: 100%;
-}
-
-.song-card:hover{
-    background-color: rgb(34, 34, 34);
-    color: rgb(141, 153, 153)
-}
-
-.song-card{
-    height: 50px;
-    margin: 10px;
-
-    transition: all 0.2s ease;
-
-    background-color: rgb(182, 182, 182);
+.theme-switcher{
+    background-color: var(--color-contrast);
+    border: var(--color-text-accent) solid 1px;
+    width: 50%;
+    height: 50%;
 }
 
 #song-title{
-    font-size: 2em;
+    font-size: 1.5em;
     grid-column: 2;
     justify-self: center;
+
+    height: 50%;
+    
+    background-color: var(--theme-elevation);
+    color: var(--color-text-default);
+
+    padding: 10px;
+
+    font-style: italic;
 }
 
 #flex-container-music-box{
-    overflow-x: auto;
-
     display: flex;
     grid-column: 2;
     grid-row: 2;
 
-    border-radius: 5px;
-    border: 1px solid #0D1110;
-    background-color: rgb(2, 25, 26);
+    overflow-x: scroll;
+
+    border: 5px solid var(--color-border);
+    background-color: var(--color-accent);
 }
+
+#music-note-indicators{
+    display: flex;
+
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 2;
+
+    justify-self: center;
+    background-color: var(--color-accent);
+    width: 40px;
+    border: var(--color-border) solid 1px;
+
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 
 .flex-container-note-column{
     display: flex;
     flex-direction: column;
-
     height: 100%;
 }
 
 .playhead{
-    background: #042A2B;
-    border-bottom: 1px solid #0D1110;
+    background-color: var(--color-accent);
+    border-bottom: 1px solid var(--color-border);
     height: 60px;
 }
 
 .note{
     display: flex;
-
-    background: #042A2B;
-
-    /* miss bottom border so they don't double up */
-    border-bottom: 0.5px solid #0D1110;
-    border-right:  0.5px solid #0D1110;
-    border-left:  0.5px solid #0D1110; 
-
-    /* note names */
-    font-weight: bold;
-    font-size: 1em;
-    color: #0D1110;
-
-    width: 50px;
+    align-items: center;
+    border-bottom: 0.5px solid var(--color-border);
+    border-right:  1px solid var(--color-border);
+    justify-content: center;
+    font-size: 0.7em;
+    width: 40px;
     height: 100%;
+    color: var(--color-text-accent);
 
-    /* dont allow user to highlight note names while dragging */
+    -moz-user-select: none; /* Firefox */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none;
 }
 
-.note:hover{
-    box-shadow: inset 0em 0em .5em #0D1110;
+.on{
+    background-color: var(--color-contrast);
+}
+
+.off{
+    background-color: var(--color-accent);
+}
+
+.flex-container-note-column > .note {
+    /* note highlight colour with zero alpha*/
+    color: rgba(114, 59, 59, 0);
+}
+
+.flex-container-note-column > .note:hover {
+    box-shadow: inset 0em 0em .5em rgb(0, 0, 0, 0.4);
+
+    /* note highlight colour*/
+    color: var(--color-text-accent);
     cursor: pointer;
+}
+
+#box-controls {
+    display: flex;
+
+    flex-wrap: wrap;
+    justify-content: center;
+
+    grid-column: 2;
+    grid-row: 3;
+    
+    margin-top:10px;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#box-controls > fieldset{
+    background: var(--color-background);
+    margin: 10px;
+    border: var(--color-border) solid 1px;
+}
+
+#box-controls > fieldset > p {
+    color: var(--color-text-default);
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+#box-controls > fieldset > button{
+    color: var(--color-background);
+    background: var(--color-contrast);
+    border-radius: 1em;
+    font-size: 1em;
+    padding: 0.35em 1.2em;
+    margin-right: 10px;
+    transition: all 0.2s;
+    height: 10vh;
+    margin-bottom:10px;
+}
+
+#box-controls > fieldset > button:hover{
+    color: var(--color-contrast);
+    transform: skewX(4deg);
+    background: var(--color-background);
+    border: 2px dashed var(--color-contrast);
 }

@@ -1,14 +1,42 @@
 const globalSettings = {
     activeMusicBox: null,
-    noteOnColour: "#54F2F2",
-    noteOffColour: "#042A2B",
-    playHeadOnColor: "#54F2F2",
-    playHeadOffColor: "#042A2B",
     draggingMusicWindow: false,
-    defaultWidth: 5,
-    defaultScale: scales.C5MajorScale,
-    loadedSong: null,
-    savedSongs: []
+    playSpeed: 500,
+    defaultWidth: 30,
+    defaultScale: scales.FullScale,
+    previousSaveName: "New Song",
+    maximumColumns: 200
+}
+
+const theme = {
+    current: null,
+    light: {
+        background: '#fafafa',
+        border: '#212121',
+        textDefault: '#212121',
+        accent: '#3E363F',
+        textAccent: '#b2dfdb',
+        contrast: '#FF715B'
+    },
+    dark: {
+        background: '#212121',
+        border: '#464545',
+        textDefault: '#efebe9',
+        accent: '#212121',
+        textAccent: '#ffffff',
+        contrast: '#ffeb3b'
+    },
+    change: (newTheme) => {
+        if (theme.current == newTheme) return;
+
+        theme.current = newTheme;
+        document.body.style.setProperty('--color-background', newTheme.background);
+        document.body.style.setProperty('--color-border', newTheme.border);
+        document.body.style.setProperty('--color-text-default', newTheme.textDefault);
+        document.body.style.setProperty('--color-accent', newTheme.accent);
+        document.body.style.setProperty('--color-text-accent', newTheme.textAccent);
+        document.body.style.setProperty('--color-contrast', newTheme.contrast);
+    }
 }
 
 class MusicBox {
@@ -24,6 +52,8 @@ class MusicBox {
         this.noteGrid = [[]];
         this.activeNoteFlags = [[]];
         this.playHeads = [];
+
+        this.musicNoteIndicators = document.getElementById("music-note-indicators");
     }
 
     create(width) {
@@ -34,6 +64,8 @@ class MusicBox {
 
         this.activeNoteFlags.pop();
         this.noteGrid.pop();
+
+        this.assignNoteIndicators();
     }
 
     logState() {
@@ -57,11 +89,38 @@ class MusicBox {
             for (let i = 0; i < diff; i++) {
                 this.addRow();
             }
-            return;
+        }
+        else {
+            for (let i = 0; i < diff; i++) {
+                this.removeRow();
+            }
         }
 
-        for (let i = 0; i < diff; i++) {
-            this.removeRow();
+        this.assignNoteIndicators();
+        this.assignNoteNames();
+    }
+
+    assignNoteNames() {
+        for (let i = 0; i < this.noteGrid.length; i++) {
+            for (let j = 0; j < this.noteGrid[i].length; j++) {
+                this.noteGrid[i][j].innerHTML = this.scale[j];
+            }
+        }
+    }
+
+    assignNoteIndicators() {
+        this.clearNoteIndicators();
+        for (let i = 0; i < this.height; i++) {
+            const currentColumn = this.musicNoteIndicators;
+            const newNote = this.getHtmlNote(this.scale[i]);
+            currentColumn.appendChild(newNote);
+        }
+    }
+
+    clearNoteIndicators() {
+        const childCount = this.musicNoteIndicators.children.length;
+        while (this.musicNoteIndicators.firstChild) {
+            this.musicNoteIndicators.removeChild(this.musicNoteIndicators.firstChild);
         }
     }
 
@@ -69,10 +128,10 @@ class MusicBox {
         const newHeight = this.height + 1;
         for (let i = 0; i < this.width; i++) {
             const currentColumn = this.noteColumns[i];
-            const newNote = this.getHtmlNote();
+            const newNote = this.getHtmlNote(this.scale[this.height]);
             currentColumn.appendChild(newNote);
 
-            const newNoteDiv = this.noteColumns[i].children[newHeight];
+            const newNoteDiv = currentColumn.children[newHeight];
             this.noteGrid[i].push(newNoteDiv);
 
             this.activeNoteFlags[i].push(false);
@@ -114,6 +173,10 @@ class MusicBox {
     }
 
     addNoteColumn() {
+        if (this.width >= globalSettings.maximumColumns) {
+            return;
+        }
+
         const newMusicColumn = this.getHtmlColumn(this.scale, true);
 
         this.container.appendChild(newMusicColumn);
@@ -139,6 +202,9 @@ class MusicBox {
     }
 
     removeNoteColumn() {
+        if (this.width <= 1) {
+            return;
+        }
         const removedColumn = this.noteColumns.pop();
         this.container.removeChild(removedColumn);
 
@@ -150,23 +216,23 @@ class MusicBox {
     }
 
     assignButton(column, row) {
-
         const currentNote = this.noteGrid[column][row];
 
         currentNote.onclick = () => {
-            console.log('Note pressed!');
-
             if (globalSettings.draggingMusicWindow) return;
 
             const nextState = !this.activeNoteFlags[column][row];
 
             if (nextState) {
-                console.log('Playing note ' + this.scale[row]);
                 PlayNote(this.scale[row]);
             }
 
-            const colour = (nextState) ? globalSettings.noteOnColour : globalSettings.noteOffColour;
-            currentNote.style.background = colour;
+            if (currentNote.classList.contains('off')) {
+                currentNote.className = 'note on';
+            }
+            else {
+                currentNote.className = 'note off';
+            }
 
             this.activeNoteFlags[column][row] = nextState;
         };
@@ -177,16 +243,16 @@ class MusicBox {
             currentColumn = 0;
         }
         else if (currentColumn >= this.width) {
-            this.playHeads[currentColumn - 1].style.background = globalSettings.playHeadOffColor;
+            this.playHeads[currentColumn - 1].style.background = theme.current.contrast;
             return;
         }
 
         this.isPlaying = true;
 
         if (currentColumn > 0) {
-            this.playHeads[currentColumn - 1].style.background = globalSettings.playHeadOffColor;
+            this.playHeads[currentColumn - 1].style.background = theme.current.accent;
         }
-        this.playHeads[currentColumn].style.background = globalSettings.playHeadOnColor;
+        this.playHeads[currentColumn].style.background = theme.current.contrast;
 
 
         for (let i = 0; i < this.height; i++) {
@@ -203,7 +269,7 @@ class MusicBox {
 
         this.playTimeout = setTimeout(function () {
             musicBox.play(currentColumn);
-        }, 400);
+        }, globalSettings.playSpeed);
     }
 
     clear() {
@@ -224,22 +290,26 @@ class MusicBox {
                 const currentNote = this.noteGrid[i][j];
                 const state = this.activeNoteFlags[i][j];
 
-                const colour = (state) ? globalSettings.noteOnColour : globalSettings.noteOffColour;
-                currentNote.style.background = colour;
+                if (state) {
+                    currentNote.className = 'note on';
+                }
+                else {
+                    currentNote.className = 'note off';
+                }
             }
         }
     }
 
     clearPlayheadIndicators() {
         for (let i = 0; i < this.width; i++) {
-            this.playHeads[i].style.background = globalSettings.playHeadOffColor;
+            this.playHeads[i].style.background = theme.current.accent;
         }
     }
 
     clearActiveNoteIndicators() {
         for (let i = 0; i < this.width; i++) {
             for (let j = 0; j < this.height; j++) {
-                this.noteGrid[i][j].style.background = globalSettings.noteOffColour;
+                this.noteGrid[i][j].className = 'note off';
             }
         }
     }
@@ -250,33 +320,37 @@ class MusicBox {
         this.isPlaying = false;
     }
 
-    save() {
-        const saveData = {
-            scale: this.scale,
+    save(songName) {
+        const songData = {
             width: this.width,
+            scale: this.scale,
             activeNoteFlags: this.activeNoteFlags
         }
 
-        if (globalSettings.loadedSong.name == "New Song...") {
-            const newTitle = prompt("Enter a name for the song.");
-            const newSong = new Song(newTitle, this.scale, this.width, this.activeNoteFlags);
-            globalSettings.savedSongs.push(newSong);
-            AddNewSongCard(newSong);
-            return;
-        }
-
-        globalSettings.loadedSong.scale = saveData.scale;
-        globalSettings.loadedSong.width = saveData.width;
-        globalSettings.loadedSong.activeMusicBox = saveData.activeNoteFlags;
+        localStorage.setItem(songName, JSON.stringify(songData));
     }
 
-    load(songData) {
+    load(songName) {
+        const songData = JSON.parse(localStorage.getItem(songName));
+
+        console.log(localStorage.getItem(songName))
+
         this.stop();
 
         this.resize(songData.width);
         this.changeScale(songData.scale);
-
         this.activeNoteFlags = songData.activeNoteFlags;
+
+        this.drawActiveNoteIndicators();
+    }
+
+    loadJsonString(jsonString) {
+        const data = JSON.parse(jsonString);
+        this.stop();
+        this.resize(data.width);
+        this.changeScale(data.scale);
+        this.activeNoteFlags = data.activeNoteFlags;
+
         this.drawActiveNoteIndicators();
     }
 
@@ -292,9 +366,10 @@ class MusicBox {
         return newSongElement;
     }
 
-    getHtmlNote() {
+    getHtmlNote(noteName) {
         const note = document.createElement('div');
-        note.setAttribute('class', 'note');
+        note.setAttribute('class', 'note off');
+        note.innerHTML = noteName;
         return note;
     }
 
@@ -308,34 +383,11 @@ class MusicBox {
         musicColumn.appendChild(playhead);
 
         for (let i = 0; i < scale.length; i++) {
-            const note = this.getHtmlNote();
+            const note = this.getHtmlNote(scale[i]);
             musicColumn.appendChild(note);
         }
 
         return musicColumn;
-    }
-}
-
-class Song {
-    constructor(name, scale = globalSettings.defaultScale,
-        width = globalSettings.defaultWidth, activeNoteFlags = []) {
-        this.name = name;
-        this.scale = scale;
-        this.width = width;
-
-        const height = scale.length;
-        if (activeNoteFlags = []) {
-            this.activeNoteFlags = activeNoteFlags;
-            for (let i = 0; i < this.width; i++) {
-                activeNoteFlags.push([]);
-                for (let j = 0; j < height; j++) {
-                    activeNoteFlags[i].push(false);
-                }
-            }
-        }
-        else {
-            this.activeNoteFlags = activeNoteFlags;
-        }
     }
 }
 
@@ -369,100 +421,66 @@ class SliderControls {
             const diff = (e.pageX - this.startX);
 
             globalSettings.draggingMusicWindow = true;
-
             this.slider.scrollLeft = this.scrollLeftOnDown - diff;
         });
     }
 }
 
 class MusicBoxControls {
-    constructor() {
-        this.playButton = document.getElementById("play-button");
-        this.stopButton = document.getElementById("stop-button");
-        this.clearButton = document.getElementById("clear-button");
-    }
+    constructor() { }
 
     bind(musicBox) {
-        this.playButton.onclick = () => {
-            if (musicBox.isPlaying) {
-                musicBox.stop();
-            }
-            musicBox.play();
-        };
-
-        this.stopButton.onclick = () => musicBox.stop();
-
-        this.clearButton.onclick = () => musicBox.clear();
-
+        document.getElementById("play-button").onclick = () => this.playButton(musicBox);
+        document.getElementById("load-button").onclick = () => this.loadButton(musicBox);
+        document.getElementById("save-button").onclick = () => this.saveButton(musicBox);
+        document.getElementById("stop-button").onclick = () => musicBox.stop();
+        document.getElementById("clear-button").onclick = () => musicBox.clear();
         document.getElementById("add-button").onclick = () => musicBox.addNoteColumn();
         document.getElementById("remove-button").onclick = () => musicBox.removeNoteColumn();
+        document.getElementById("set-speed-button").onclick = () => this.setSpeedButton();
+        document.getElementById("toggle-theme-button").onclick = () => this.themeSwitcherButton();
+    }
 
-        document.getElementById("load-button").onclick = () => {
-            ToggleLoadWrapper();
+    playButton(musicBox) {
+        if (musicBox.isPlaying) {
+            musicBox.stop();
         }
-
-        document.getElementById("save-button").onclick = () => {
-            musicBox.save();
-        }
-
+        musicBox.play();
     }
-}
 
-function TESTING_FEATURES() {
-    NewSong("Song One");
-    NewSong("Song Two");
-    NewSong("Song Three");
-    LoadSongs();
-}
+    setSpeedButton() {
+        const newSpeed = window.prompt("Enter a speed [100, 1000].", 500);
 
-function ToggleLoadWrapper() {
-    const loadWrapper = document.getElementById('load-song-wrapper');
+        if (newSpeed < 100 || newSpeed > 1000) return;
 
-    if (loadWrapper.style.zIndex > 0) {
-        loadWrapper.style.zIndex = -1;
+        globalSettings.activeMusicBox.stop();
+        globalSettings.playSpeed = newSpeed;
     }
-    else {
-        loadWrapper.style.zIndex = 1;
+
+    saveButton(musicBox) {
+        const previousName = globalSettings.previousSaveName;
+        const songName = window.prompt("Enter a song name to save it.", previousName);
+        globalSettings.previousSaveName = songName;
+        globalSettings.activeMusicBox.save(songName);
     }
-}
 
-function NewSong(name) {
-    const newSong = new Song(name);
-    globalSettings.savedSongs.push(newSong);
-}
-
-function LoadSongs() {
-    const numberOfSongs = globalSettings.savedSongs.length;
-    for (let i = 0; i < numberOfSongs; i++) {
-        const song = globalSettings.savedSongs[i];
-        AddNewSongCard(song);
+    loadButton(musicBox) {
+        const previousName = globalSettings.previousSaveName;
+        const songName = window.prompt("Enter a song name to load it.", previousName);
+        globalSettings.activeMusicBox.load(songName);
     }
-}
 
-function AddNewSongCard(song) {
-    const songCardFlex = document.getElementById('flex-load-song');
-    const newCard = document.createElement('div');
-
-    newCard.setAttribute('class', 'song-card');
-    newCard.innerHTML = song.name;
-
-    songCardFlex.appendChild(newCard);
-
-    newCard.onclick = () => {
-        globalSettings.savedSongs.forEach(element => {
-            if (element.name === newCard.innerHTML) {
-                globalSettings.loadedSong = element;
-                globalSettings.activeMusicBox.load(element);
-                ToggleLoadWrapper();
-            }
-        });
+    themeSwitcherButton() {
+        const newTheme = (theme.current == theme.light) ? theme.dark : theme.light;
+        theme.change(newTheme);
     }
 }
 
 window.addEventListener('load', () => {
-    const standardBox = new MusicBox(scales.medium);
-    standardBox.create(5);
+    theme.change(theme.light);
 
+    const standardBox = new MusicBox(globalSettings.defaultScale);
+    standardBox.create(globalSettings.defaultWidth);
     globalSettings.activeMusicBox = standardBox;
 
     const sliderControls = new SliderControls();
@@ -471,8 +489,14 @@ window.addEventListener('load', () => {
     const musicBoxControls = new MusicBoxControls();
     musicBoxControls.bind(globalSettings.activeMusicBox);
 
-    const newSong = new Song("New Song...");
-    globalSettings.loadedSong = newSong;
-
-    TESTING_FEATURES();
+    const d = JSON.parse(defaultSongs.PachelbelCannon);
+    globalSettings.activeMusicBox.loadJsonString(defaultSongs.PachelbelCannon);
 });
+
+/*
+    POSSIBLE FUTURE FEATURES:
+    * Download/Load songs as JSON files
+    * Multiple tabs for multiple music boxes (coded to already support this)
+    * Users can create thier own scales (coded to already support this)
+    * Print out song as a music box strip
+*/
