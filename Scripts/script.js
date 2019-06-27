@@ -1,7 +1,7 @@
 const globalSettings = {
     activeMusicBox: null,
     draggingMusicWindow: false,
-    playSpeed: 500,
+    playSpeed: 300,
     defaultWidth: 30,
     defaultScale: scales.FullScale,
     previousSaveName: "New Song",
